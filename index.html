@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>史脉 SHIMAI | 高中历史因果解释与思辨学习工具（双真题精研版）</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif-cn { font-family: 'Noto Serif SC', serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-[#fcfbf9] text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b border-slate-200/80 px-6 py-3 flex justify-between items-center shrink-0 shadow-xs">
+        <div class="flex items-center space-x-3">
+            <div class="bg-stone-800 text-stone-100 font-serif-cn font-bold text-lg w-9 h-9 rounded-lg flex items-center justify-center shadow-xs">史</div>
+            <div>
+                <h1 class="font-serif-cn font-bold text-base text-slate-900 tracking-wide">史脉 · 高中历史因果解释与思辨学习工具</h1>
+                <p class="text-xs text-slate-500 mt-0.5">高考开放性主观题原貌呈现与 AI 脚手架式引导诊断</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span class="bg-amber-50 text-amber-800 text-xs px-3 py-1.5 rounded-md font-medium border border-amber-200/60">
+                <i class="fa-solid fa-square-check mr-1 text-amber-600"></i> 原题原图解耦标准 V2.0
+            </span>
+            <button onclick="toggleTeacherMode()" class="text-xs bg-white hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded transition flex items-center space-x-1.5 border border-slate-200 shadow-sm">
+                <i class="fa-solid fa-code text-slate-400"></i>
+                <span id="teacher-btn-text">后台 JSON 诊断规范</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主体三栏布局 -->
+    <div class="flex flex-1 overflow-hidden">
+
+        <!-- 左侧边栏：核心真题导航 -->
+        <aside class="w-72 bg-white border-r border-slate-200/80 flex flex-col shrink-0 custom-scrollbar overflow-y-auto">
+            <div class="p-4 border-b border-slate-100 bg-stone-50/50 sticky top-0 z-10">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-stone-500">核心测试真题库</h2>
+                <p class="text-xs text-slate-400 mt-0.5">完整材料出处与图像史料呈现</p>
+            </div>
+            <nav id="exam-nav-list" class="p-3 space-y-2"></nav>
+        </aside>
+
+        <!-- 中间主面板：原始高考试题（文字 + 原图 + 设问） -->
+        <main class="w-[46%] border-r border-slate-200/80 flex flex-col bg-white overflow-y-auto custom-scrollbar">
+            <div id="exam-paper-content" class="p-8 space-y-6"></div>
+        </main>
+
+        <!-- 右侧交互面板：AI 单点诊断与自主修正工作坊 -->
+        <section class="flex-1 bg-[#f8fafc] flex flex-col overflow-y-auto custom-scrollbar p-6 space-y-5">
+            
+            <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-3.5 text-xs text-amber-900 flex items-start space-x-3 shadow-2xs">
+                <i class="fa-solid fa-route text-amber-600 mt-0.5 text-sm"></i>
+                <div>
+                    <span class="font-semibold">核心学习路径：</span> 独立作答 (V1) <i class="fa-solid fa-arrow-right mx-1 text-[10px]"></i> AI 单点因果追问 <i class="fa-solid fa-arrow-right mx-1 text-[10px]"></i> 自主修正 (V2) <i class="fa-solid fa-arrow-right mx-1 text-[10px]"></i> 发展性对比。
+                </div>
+            </div>
+
+            <!-- V1 独立作答输入框 -->
+            <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center">
+                        <span class="w-5 h-5 bg-stone-800 text-white rounded-full text-[11px] flex items-center justify-center mr-2 font-mono">1</span>
+                        第一步：独立完成作答 (V1)
+                    </span>
+                    <span class="text-[11px] text-slate-400">结合左侧史料及设问独立思辨</span>
+                </div>
+                <textarea id="input-v1" rows="5" class="w-full text-xs leading-relaxed p-3 bg-slate-50/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:outline-none transition" placeholder="请依据左侧高考原题材料、图表及设问，写出你的初版历史解释..."></textarea>
+                <div class="flex justify-end">
+                    <button onclick="submitV1()" class="bg-stone-800 hover:bg-stone-900 text-white text-xs px-4 py-2 rounded-lg font-medium shadow-sm transition flex items-center space-x-1.5">
+                        <span>提交初稿获取诊断</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI 首次诊断与单点追问 -->
+            <div id="box-diag-v1" class="hidden bg-stone-50 border border-stone-200 rounded-xl p-4 space-y-3">
+                <div class="flex items-center justify-between border-b border-stone-200/60 pb-2">
+                    <span class="text-xs font-bold text-stone-800 flex items-center">
+                        <i class="fa-solid fa-robot text-stone-600 mr-2"></i> AI 首次诊断与单点引导
+                    </span>
+                    <span class="text-[10px] bg-stone-200/80 text-stone-700 px-2 py-0.5 rounded font-medium">聚焦单一核心改进点</span>
+                </div>
+                <div id="text-ack-v1" class="text-xs text-stone-700 leading-relaxed font-serif-cn"></div>
+                <div class="bg-white p-3 rounded-lg border border-stone-200/60 space-y-1.5">
+                    <div class="text-[10px] font-bold text-stone-500 uppercase tracking-wider">💡 引导性思考追问：</div>
+                    <div id="text-q-v1" class="text-xs font-semibold text-stone-900 font-serif-cn leading-relaxed"></div>
+                </div>
+                <div class="json-panel hidden pt-2 border-t border-stone-200/60">
+                    <div class="text-[10px] text-stone-400 mb-1 font-mono"># 后台生成的结构化 JSON 数据规范 (首次诊断):</div>
+                    <pre id="json-v1" class="text-[10px] bg-slate-900 text-emerald-400 p-3 rounded font-mono overflow-x-auto"></pre>
+                </div>
+            </div>
+
+            <!-- V2 自主修正输入框 -->
+            <div id="box-v2" class="hidden bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center">
+                        <span class="w-5 h-5 bg-amber-700 text-white rounded-full text-[11px] flex items-center justify-center mr-2 font-mono">2</span>
+                        第二步：自主修正完善 (V2)
+                    </span>
+                    <span class="text-[11px] text-amber-700 font-medium">吸收引导，完善机制或多因素联系</span>
+                </div>
+                <textarea id="input-v2" rows="5" class="w-full text-xs leading-relaxed p-3 bg-slate-50/50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="请根据上方 AI 的追问，补充作用机制或图像细节分析，在此修改你的答案..."></textarea>
+                <div class="flex justify-end">
+                    <button onclick="submitV2()" class="bg-amber-700 hover:bg-amber-800 text-white text-xs px-4 py-2 rounded-lg font-medium shadow-sm transition flex items-center space-x-1.5">
+                        <span>提交修正并进行前后对比</span>
+                        <i class="fa-solid fa-check text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI 二次比较诊断报告 -->
+            <div id="box-diag-v2" class="hidden bg-emerald-50/50 border border-emerald-200 rounded-xl p-4 space-y-3">
+                <div class="flex items-center justify-between border-b border-emerald-200/60 pb-2">
+                    <span class="text-xs font-bold text-emerald-900 flex items-center">
+                        <i class="fa-solid fa-chart-line text-emerald-600 mr-2"></i> 发展性比较诊断报告 (V1 vs V2)
+                    </span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">实质性思维跃升</span>
+                </div>
+                <div id="text-ack-v2" class="text-xs text-emerald-900 leading-relaxed font-serif-cn"></div>
+                <div class="bg-white p-3 rounded-lg border border-emerald-200/60 space-y-1.5">
+                    <div class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">🎯 进阶提升建议：</div>
+                    <div id="text-q-v2" class="text-xs font-semibold text-emerald-950 font-serif-cn leading-relaxed"></div>
+                </div>
+                <div class="json-panel hidden pt-2 border-t border-emerald-200/60">
+                    <div class="text-[10px] text-stone-400 mb-1 font-mono"># 后台生成的结构化 JSON 数据规范 (二次诊断):</div>
+                    <pre id="json-v2" class="text-[10px] bg-slate-900 text-emerald-400 p-3 rounded font-mono overflow-x-auto"></pre>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 完整题库与诊断数据配置 -->
+    <script>
+        const officialExamsData = [
+            {
+                task_id: "T_2026_20",
+                year: "2026",
+                question_title: "2026年高考历史题（第20题）",
+                category: "图像史料提取与罗马文明治理",
+                original_question_header: "20. 阅读材料，完成下列要求。(14分)",
+                original_materials: [
+                    {
+                        label: "材料一",
+                        content: "图1 托勒密王朝末期的亚历山大城布局示意图（包含法罗斯岛及灯塔、尤诺斯托斯港、马艾利斯湖、城墙以及王宫、竞技场、克诺形神殿、潘神庙等功能区）。",
+                        image_url: "alexandria_map.jpg", // 可将您提供的亚历山大城布局图命名为 alexandria_map.jpg 上传到仓库
+                        image_alt: "【高考原图】图1：托勒密王朝末期的亚历山大城布局示意图",
+                        source: "——据【美】安德鲁·里斯《城市：一部世界史》"
+                    },
+                    {
+                        label: "材料二",
+                        content: "像雅典和亚历山大一样，罗马城的建筑也体现了对公共建筑与服务持久重视的传统。不仅如此，罗马征服之地，城市全部都按罗马标准修建公共建筑。所以，在法国可以看到极为壮观的引水桥，在北非的突尼斯和西亚的约旦可以看到广场、会堂、剧院、浴场、竞技场遗址。人们在会堂里一起商议和妥协，在浴场中一起休闲和放松，在广场上一起狂欢和出征，由此获得共同的存亡感、生活感、使命感。<br><br>在交通设施方面，罗马人建造的大道网络将首都与欧亚大陆的遥远行省贯通一体。凭借路网，军队可以迅速移动，用最硬的方式把各城市连在一起；商人可以贸易往来，用最有弹性的方式把罗马联系在一起，成为一个内部依存度极高的经济体。在行为规则方面，法律是罗马这个超大规模共同体得以整合的基础。有了它，4600万人理论上都知道该怎么做，不该怎么做，做法就有规矩了，这是罗马留给现代文明最重要的启示和智力资产。",
+                        source: "——据李筠《罗马史纲》等整理"
+                    }
+                ],
+                original_subquestions: [
+                    "（1）根据材料一，概括亚历山大城的布局特点，结合所学指出亚历山大城在历史上的重要地位。(7分)",
+                    "（2）根据材料二，归纳古罗马社会治理方式的主要作用。综合材料一、二，结合所学，概述古罗马文明与地中海世界的关系。(7分)"
+                ],
+                diagnosisV1: {
+                    ack: "初稿诊断：你准确从材料一提取了亚历山大城临海、建有城墙及王宫神庙等布局特点。但在回答第(2)问古罗马治理作用时，偏向于独立罗列建筑、路网和法律，尚未深刻阐明‘物理交通与法律规范是如何协同整合超大规模帝国’的。",
+                    question: "物理上的道路畅通（军事与商业联动）与抽象的法律秩序（规范4600万人的行为）是如何结合在一起，共同巩固庞大帝国统治的？"
+                },
+                jsonV1: {
+                    mode: "initial",
+                    task_id: "T_2026_20",
+                    task_fit: "good",
+                    historical_accuracy: "accurate",
+                    evidence_use: { status: "present", reason: "有效提取了材料一地图信息与材料二文本。" },
+                    causal_reasoning: {
+                        C1: { status: "present", evidence: "指出路网和法律维护了统治。" },
+                        C3: { status: "partial", evidence: "列举了多项治理措施，但未分析大道网络与法律制度之间的协同效应。" }
+                    },
+                    primary_issue: "multi_factor_relation",
+                    student_feedback: {
+                        acknowledgement: "你已全面提取了亚历山大城地图及罗马治理的三大支柱。",
+                        guiding_question: "物质层面的大道网络与制度层面的法律规范是如何协同整合整个帝国的？"
+                    }
+                },
+                diagnosisV2: {
+                    ack: "对比诊断报告：修正后，你不仅阐述了各自作用，还进一步指出了‘物质交通连接’与‘法律秩序保障’的互补与协同效应，实现了多因素整合的实质性进步！",
+                    question: "下一步学习建议：思考罗马文明如何继承并创新了地中海文明（如亚历山大城等希腊化遗产）。"
+                },
+                jsonV2: {
+                    mode: "revision",
+                    task_id: "T_2026_20",
+                    revision_comparison: {
+                        improvement_level: "substantive",
+                        responded_to_feedback: true,
+                        newly_added_reasoning: "阐明了交通路网与法律规范在超大规模共同体整合中的多因素整体关联。",
+                        retained_valid_content: "保留了对地图布局概括与公共建筑作用的准确归纳。"
+                    }
+                }
+            },
+            {
+                task_id: "T_2024_22",
+                year: "2024",
+                question_title: "2024年高考历史题（第22题）",
+                category: "万里茶道与近代中国茶业危机",
+                original_question_header: "22. 以茶观史，溯往知来。阅读材料，完成下列要求。(20分)",
+                original_materials: [
+                    {
+                        label: "材料一",
+                        content: "从17世纪后期开始，茶叶成为汉口商业贸易的龙头。雍正五年（1727），中俄签订《恰克图条约》，俄商获准来华贸易。于是，晋商在福建武夷山和两湖地区购买大批茶叶，经水路至汉口集散，再向北经水陆运输至张家口，再由张家口的“外商”运至中俄边境口岸恰克图，从而形成了举世闻名的“万里茶道”。在恰克图贸易开始之际，参与茶叶贸易的华商以晋商和蒙商为主，后来则几乎完全由晋商垄断。晋商在关内的大本营张家口，在明代原属贫瘠荒凉之地，物资稀缺，人烟稀少，但到19世纪时已经成为商贸聚集的重镇。",
+                        source: "——摘编自刘再起《晋商与万里茶道》"
+                    },
+                    {
+                        label: "材料二",
+                        content: "19世纪70年代以后，国际茶叶市场完全依赖中国的局面结束了。1887年，中国茶叶的出口量被印度超过，引起了朝野上下的震动。到90年代，福州、皖南等茶叶产地依托民间力量，相继引进茶叶制造机器，形成了一个建立制茶工场的小高潮。与此同时，较具规模的茶叶改良公司也开始出现。1897年，中国最早的农业科技杂志《农学》创刊。在最初两年里，该刊有关茶叶的奏折文札、茶事报道和国外科技，占据了最大篇幅。即使当时中国业茶者和有识之士意识到了危机，甚至采取了某种措施，也不可能阻止茶叶外贸的衰减趋势，因为这根本不是措施是否得力的问题，而是体制和制度的问题。",
+                        source: "——摘编自李长莉等主编《近代中国的城市与乡村》"
+                    },
+                    {
+                        label: "材料三",
+                        content: "二战后，世界茶叶消费市场呈现多极发展的趋势。随着西欧国家的实力开始削弱，英、法、荷等国的殖民地纷纷宣布独立，相应地，印度、斯里兰卡茶叶出口一统天下的局面和英国进口大国的地位均发生了动摇。随之而起的是亚非地区的肯尼亚、越南、印尼、乌干达等国的茶业崛起，并成为新兴的茶叶消费国。新中国成立后，中国茶业复兴，到20世纪80年代中期，中国的茶叶生产量超过印度，重新成为世界第一的产茶国。目前，中国茶叶内销市场旺盛，出口贸易在总量上基本保持世界前三的位置。此外，俄罗斯和美国成为新兴的茶叶进口大国。",
+                        source: "——据盛敏《千年脉动：中国茶文化对外传播与茶叶出口贸易》整理"
+                    }
+                ],
+                original_subquestions: [
+                    "（1）根据材料一，指出清代前中期汉口在茶叶对外贸易中的角色，并概括这一时期汉口茶叶贸易的主要影响。",
+                    "（2）根据材料二，概述19世纪90年代中国在挽救茶业危机方面的新举措。结合所学，揭示19世纪后期中国茶业危机的根源。",
+                    "（3）根据材料三，概述二战后世界茶叶消费市场“多极发展”的成因。综合材料一二三，概括你对18世纪以来中国茶业兴衰史的认识。"
+                ],
+                diagnosisV1: {
+                    ack: "初稿诊断：你能准确总结出90年代引进机器、成立改良公司等举措。但在解答茶业危机根源时，多停留在“印度竞争”等表面现象，未能揭示腐朽的封建制度与分散落后的小农经济这一深层根源。",
+                    question: "材料提及‘这根本不是措施是否得力的问题，而是体制和制度的问题’。结合所学，当时的落后体制和分散的小农经济是如何在国际机械化竞争中导致华茶衰减的？"
+                },
+                jsonV1: {
+                    mode: "initial",
+                    task_id: "T_2024_22",
+                    task_fit: "good",
+                    historical_accuracy: "accurate",
+                    evidence_use: { status: "present", reason: "准确提取了材料二中90年代的救急举措。" },
+                    causal_reasoning: {
+                        C1: { status: "present", evidence: "指出外贸衰减的现实。" },
+                        C2: { status: "partial", evidence: "尚未深入阐释小农经济体制与机械化成本之间的因果作用机制。" }
+                    },
+                    primary_issue: "causal_mechanism",
+                    student_feedback: {
+                        acknowledgement: "你已准确提取了挽救危机的多项具体举措。",
+                        guiding_question: "国内落后的体制与小农经济是如何在国际竞争中导致茶业危机的？"
+                    }
+                },
+                diagnosisV2: {
+                    ack: "对比诊断报告：在 V2 中，你成功补充了‘外部机械化生产成本优势’与‘内部封建体制、小农经济落后’的双重因果作用机制，逻辑论证更加严密！",
+                    question: "下一步学习建议：尝试将近代茶业危机置于资本主义世界市场初步形成与列强经济侵略的宏观大背景中去审视。"
+                },
+                jsonV2: {
+                    mode: "revision",
+                    task_id: "T_2024_22",
+                    revision_comparison: {
+                        improvement_level: "substantive",
+                        responded_to_feedback: true,
+                        newly_added_reasoning: "补充了封建体制与落后生产方式在国际竞争中的深层根源机制。",
+                        retained_valid_content: "保留了对汉口角色、万里茶道及90年代改良举措的准确概括。"
+                    }
+                }
+            }
+        ];
+
+        let currentTaskId = "T_2026_20";
+        let isTeacherMode = false;
+
+        function initExamNav() {
+            const navContainer = document.getElementById("exam-nav-list");
+            let html = "";
+            officialExamsData.forEach(exam => {
+                const isActive = exam.task_id === currentTaskId;
+                html += `
+                    <button onclick="switchExam('${exam.task_id}')" class="w-full text-left p-3 rounded-lg border ${isActive ? 'border-stone-400 bg-stone-100 font-semibold shadow-2xs' : 'border-slate-200/60 hover:bg-slate-50 text-slate-700'} transition flex flex-col space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] ${isActive ? 'bg-stone-800 text-stone-100' : 'bg-slate-100 text-slate-600'} px-1.5 py-0.5 rounded">${exam.year}年真题</span>
+                            <span class="text-[10px] text-slate-400 font-mono">${exam.task_id}</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-800 line-clamp-1 font-serif-cn">${exam.category}</div>
+                    </button>
+                `;
+            });
+            navContainer.innerHTML = html;
+        }
+
+        function switchExam(taskId) {
+            currentTaskId = taskId;
+            initExamNav();
+            const exam = officialExamsData.find(e => e.task_id === taskId);
+            
+            let html = `
+                <div class="space-y-6">
+                    <div class="border-b border-slate-200 pb-4">
+                        <span class="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1 rounded">普通高等学校招生全国统一考试 · 历史</span>
+                        <h2 class="text-lg font-bold font-serif-cn text-slate-900 mt-2">${exam.question_title}</h2>
+                    </div>
+
+                    <div class="bg-stone-50/70 p-4 rounded-xl border border-stone-200/80 text-xs font-bold font-serif-cn">
+                        ${exam.original_question_header}
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center">
+                            <i class="fa-solid fa-book-open text-stone-600 mr-1.5"></i> 原始史料文本与地图/图表
+                        </div>
+                        ${exam.original_materials.map(m => `
+                            <div class="p-4 bg-white border border-slate-200 rounded-xl text-xs leading-relaxed text-slate-800 font-serif-cn shadow-2xs space-y-3">
+                                <div class="font-bold text-stone-700">${m.label}</div>
+                                ${m.image_url ? `
+                                    <div class="my-2 border border-stone-200 rounded-lg overflow-hidden bg-stone-50 p-3 text-center">
+                                        <img src="${m.image_url}" alt="${m.image_alt}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-4 bg-amber-50/60 border border-dashed border-amber-200 rounded text-amber-800 text-xs text-center\\'><i class=\\'fa-regular fa-image text-amber-600 mr-1.5\\'></i>${m.image_alt}<div class=\\'text-[10px] text-amber-600 mt-1\\'>（提示：可将对应亚历山大城原图命名为 ${m.image_url} 上传至仓库展示）</div></div>';" class="max-h-64 mx-auto rounded object-contain shadow-2xs">
+                                    </div>
+                                ` : ''}
+                                <div>${m.content}</div>
+                                ${m.source ? `<div class="text-right text-slate-500 italic mt-2">${m.source}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <div class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center">
+                            <i class="fa-solid fa-clipboard-question text-stone-600 mr-1.5"></i> 试题设问
+                        </div>
+                        ${exam.original_subquestions.map(sub => `
+                            <div class="p-4 bg-amber-50/40 border border-amber-200/60 rounded-xl text-xs font-semibold leading-relaxed text-amber-950 font-serif-cn">
+                                ${sub}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById("exam-paper-content").innerHTML = html;
+            resetWorkspace();
+        }
+
+        function resetWorkspace() {
+            document.getElementById("input-v1").value = "";
+            document.getElementById("input-v2").value = "";
+            document.getElementById("box-diag-v1").classList.add("hidden");
+            document.getElementById("box-v2").classList.add("hidden");
+            document.getElementById("box-diag-v2").classList.add("hidden");
+        }
+
+        function toggleTeacherMode() {
+            isTeacherMode = !isTeacherMode;
+            document.getElementById("teacher-btn-text").innerText = isTeacherMode ? "隐藏 JSON 诊断" : "后台 JSON 诊断规范";
+            document.querySelectorAll(".json-panel").forEach(el => {
+                if(isTeacherMode) el.classList.remove("hidden");
+                else el.classList.add("hidden");
+            });
+        }
+
+        function submitV1() {
+            const text = document.getElementById("input-v1").value;
+            if(!text.trim()) return alert("请先依据左侧高考原题完成独立作答！");
+            const exam = officialExamsData.find(e => e.task_id === currentTaskId);
+            document.getElementById("box-diag-v1").classList.remove("hidden");
+            document.getElementById("box-v2").classList.remove("hidden");
+            document.getElementById("text-ack-v1").innerText = exam.diagnosisV1.ack;
+            document.getElementById("text-q-v1").innerText = exam.diagnosisV1.question;
+            document.getElementById("json-v1").innerText = JSON.stringify(exam.jsonV1, null, 2);
+        }
+
+        function submitV2() {
+            const text = document.getElementById("input-v2").value;
+            if(!text.trim()) return alert("请完成修正后再提交！");
+            const exam = officialExamsData.find(e => e.task_id === currentTaskId);
+            document.getElementById("box-diag-v2").classList.remove("hidden");
+            document.getElementById("text-ack-v2").innerText = exam.diagnosisV2.ack;
+            document.getElementById("text-q-v2").innerText = exam.diagnosisV2.question;
+            document.getElementById("json-v2").innerText = JSON.stringify(exam.jsonV2, null, 2);
+        }
+
+        initExamNav();
+        switchExam("T_2026_20");
+    </script>
+</body>
+</html>
